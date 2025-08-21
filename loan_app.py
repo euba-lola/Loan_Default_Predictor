@@ -1,4 +1,4 @@
-# ================= Loan Default Predictor (Dark Theme, Polished) =================
+# ================= Loan Default Predictor =================
 # Imports
 import streamlit as st
 import pandas as pd
@@ -8,113 +8,107 @@ from pathlib import Path
 # ------- MUST BE FIRST STREAMLIT CALL -------
 st.set_page_config(page_title="Loan Default Predictor", page_icon="💳", layout="centered")
 
-# ------- Global Dark Theme (black / grey, consistent) -------
 st.markdown("""
 <style>
+/* ======= Base ======= */
 :root{
-  --bg:#0B0B0C;         /* app background (near black) */
-  --surface:#151618;    /* cards/inputs background (dark grey) */
-  --border:#2A2C2F;     /* thin borders */
-  --text:#F2F4F7;       /* main text (near white) */
-  --text-2:#C9CDD2;     /* secondary text (soft grey) */
-  --muted:#8A8F98;      /* helper text */
-  --good:#19A974;       /* green accent */
-  --risk:#D64545;       /* red accent */
-  --btn:#2F3136;        /* button bg */
-  --btn-h:#3A3D43;      /* button hover */
+  --bg:#0B0B0C; --surface:#151618; --border:#2A2C2F;
+  --text:#F2F4F7; --text-2:#C9CDD2; --muted:#8A8F98;
+  --good:#1F7A1F; --risk:#B3261E; --btn:#2F3136; --btn-h:#3A3D43;
 
-  /* Footer variables (match theme) */
+  /* Footer custom vars (tweak easily) */
   --footer-bg: var(--bg);
   --footer-text: var(--text);
   --footer-border: var(--border);
   --footer-link: var(--text-2);
   --footer-link-hover: var(--text);
 }
-* { letter-spacing: .1px; }
-.stApp{ background:var(--bg); color:var(--text); font-family: 'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif; }
-.block-container{ max-width:1100px; padding-top:.75rem; }
+.stApp{ background:var(--bg); color:var(--text); font-family: 'Segoe UI',system-ui, -apple-system, Roboto, Arial, sans-serif; }
+.block-container{ max-width:1100px; padding-top:0.75rem; }
 
-/* Headings */
-.app-title{ font-weight:800; font-size:40px; margin:.75rem 0 .25rem; color:var(--text); }
-.app-caption{ color:var(--text-2); font-size:15px; margin-bottom:.25rem; }
-.section-title{ font-weight:700; color:var(--text-2); margin:.5rem 0 .35rem; }
+/* ======= Headings ======= */
+.app-title{
+  font-weight:800; font-size:40px; margin:.75rem 0 .25rem 0;
+  color:var(--text);
+}
+.app-caption{ color:var(--text-2); }
+.section-title{ font-weight:700; color:var(--text-2); margin:.25rem 0 .5rem; }
 
-/* Sidebar */
+/* ======= Sidebar ======= */
 [data-testid="stSidebar"]{ background:var(--surface); color:var(--text); border-right:1px solid var(--border); }
-[data-testid="stSidebar"] .stMarkdown, [data-testid="stSidebar"] label, [data-testid="stSidebar"] span{ color:var(--text-2)!important; }
+[data-testid="stSidebar"] .stMarkdown, [data-testid="stSidebar"] label, [data-testid="stSidebar"] span{ color:var(--text-2) !important; }
 [data-testid="stSidebar"] .stSlider > div{ color:var(--text); }
 
-/* Inputs */
+/* ======= Inputs ======= */
 .stNumberInput input, .stSelectbox div[data-baseweb="select"]>div{
-  background:var(--bg); color:var(--text);
-  border:1px solid var(--border); border-radius:10px;
+  background:var(--bg); color:var(--text); border:1px solid var(--border); border-radius:10px;
 }
 .stNumberInput label, .stSelectbox label{ color:var(--text-2); font-weight:600; }
 
-/* Buttons */
+/* ======= Buttons ======= */
 .stButton>button{
   background:var(--btn); color:var(--text);
-  border:1px solid var(--border); border-radius:10px;
-  font-weight:700; padding:.6rem 1rem;
+  border:1px solid var(--border); border-radius:10px; font-weight:700; padding:.6rem 1rem;
 }
 .stButton>button:hover{ background:var(--btn-h); }
 
-/* Cards & metrics */
+/* ======= Cards / Metrics ======= */
 .card{ background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px 18px; }
 [data-testid="stMetric"]{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
 [data-testid="stMetricValue"]{ color:var(--text); font-weight:800; }
 
-/* Result grid (big, readable) */
-.result-grid{ display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:16px; align-items:center; }
-.result-title{ font-weight:600; color:var(--text-2); }
-.result-value{ margin:.25rem 0 0; font-size:32px; font-weight:800; }
+/* ======= Pills ======= */
+.pill{ display:inline-block; padding:4px 10px; font-size:12px; border-radius:999px; border:1px solid var(--border); color:var(--text-2); background:var(--surface); }
+
+/* ======= Result tags ======= */
+.tag{ display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:10px; font-weight:700; }
+.tag.good{ background:rgba(31,122,31,.12); color:#C6F6C6; border:1px solid rgba(31,122,31,.35); }
+.tag.risk{ background:rgba(179,38,30,.12); color:#F7C4C1; border:1px solid rgba(179,38,30,.35); }
+
+/* ======= Result grid ======= */
+.result-grid{
+  display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:16px; align-items:center;
+}
 @media (max-width: 900px){
   .result-grid{ grid-template-columns:1fr; }
 }
 
-/* Status tags */
-.tag{ display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:12px; font-weight:800; letter-spacing:.3px; }
-.tag.good{ background:rgba(25,169,116,.12); color:#CFF6E9; border:1px solid rgba(25,169,116,.35); }
-.tag.risk{ background:rgba(214,69,69,.12);  color:#FFD5D5; border:1px solid rgba(214,69,69,.35); }
-
 /* Tables & code */
 .stCode, .stDataFrame{ border:1px solid var(--border); border-radius:10px; }
 
-/* Footer */
-hr.theme-hr{ border:none; border-top:1px solid var(--border); margin-top:2rem; margin-bottom:.5rem; }
+/* ======= Footer theme (centered) ======= */
 .footer{
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
-  background: var(--footer-bg)!important;
-  border: 1px solid var(--footer-border)!important;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+  background: var(--footer-bg) !important;
+  border: 1px solid var(--footer-border) !important;
   border-radius:12px; padding:14px 18px;
-  color: var(--footer-text)!important; text-align:center;
+  color: var(--footer-text) !important;
+  text-align:center;
 }
-.footer .footer-grid{
-  display:grid; grid-template-columns: repeat(2, auto);
-  column-gap:28px; row-gap:6px; justify-content:center; align-items:center;
-}
-.footer .item{ white-space:nowrap; }
-@media (max-width:520px){
-  .footer .footer-grid{ grid-template-columns:1fr; }
-  .footer .item{ white-space:normal; }
-}
-.footer a{ color: var(--footer-link)!important; text-decoration:none; }
-.footer a:hover{ color: var(--footer-link-hover)!important; text-decoration:underline; }
-.footer .brand{ font-size:.95rem; font-weight:700; }
-.footer .copy{ font-size:.9rem; color:var(--muted); }
+.footer .identity{ font-size:0.95rem; line-height:1.6; }
+.footer .brand{ font-size:0.95rem; font-weight:700; }
+.footer .copy{ font-size:0.9rem; color: var(--muted); }
+
+/* Links in footer use theme colors instead of blue */
+.footer a{ color: var(--footer-link) !important; text-decoration: none; }
+.footer a:hover{ color: var(--footer-link-hover) !important; text-decoration: underline; }
+
+/* Themed hr */
+hr{ border: none; border-top: 1px solid var(--border); }
 </style>
 """, unsafe_allow_html=True)
 
 # ------- Load artifacts -------
 @st.cache_resource
 def load_artifacts():
-    # Use relative paths so it works on any system
-    pipe_path = Path("artifacts/loan_default_lr_pipeline.pkl")
-    meta_path = Path("artifacts/loan_default_lr_metadata.json")
+    # ✅ Correct full paths to artifacts
+    pipe_path = Path(r"C:\\Users\\USER\\Downloads\\Loan_Default_Predictor\\artifacts\\loan_default_lr_pipeline.pkl")
+    meta_path = Path(r"C:\\Users\\USER\\Downloads\\Loan_Default_Predictor\\artifacts\\loan_default_lr_metadata.json")
 
     pipeline = joblib.load(pipe_path)
     with open(meta_path, "r") as f:
         meta = json.load(f)
+
     return pipeline, meta
 
 pipeline, meta = load_artifacts()
@@ -122,7 +116,7 @@ DEFAULT_THR = float(meta.get("threshold", 0.5))
 NUM_COLS = list(map(str, meta.get("numeric_features", [])))
 CAT_COLS = list(map(str, meta.get("categorical_features", [])))
 
-# ------- Header -------
+# 5) Header
 st.markdown('<div class="app-title">💳 Loan Default Predictor</div>', unsafe_allow_html=True)
 st.markdown(
     '<div class="app-caption">Predicting loan default risk using behavioral, demographic, and financial features. '
@@ -131,7 +125,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# ------- Sidebar (Threshold) -------
+# ------- Sidebar threshold -------
 with st.sidebar:
     st.markdown("### ⚙️ Decision Threshold")
     thr = st.slider("Classify as default if probability ≥ threshold", 0.05, 0.95, DEFAULT_THR, 0.01)
@@ -182,11 +176,11 @@ with tab_single:
         "approved_weekday": approved_weekday, "bank_name_clients": bank_name_clients
     }])
 
-    # Remember last prediction in session
+    # Persist last prediction
     if "score" not in st.session_state:
         st.session_state.score = None
 
-    # Predict button
+    # Predict
     if st.button("Predict Default"):
         res = predict_df(single_row, thr).iloc[0]
         st.session_state.score = {
@@ -195,7 +189,7 @@ with tab_single:
             "thr_used": float(thr),
         }
 
-    # Render result card
+    # Build result values
     s = st.session_state.score
     prob_txt = f"{s['prob']:.3f}" if s else "—"
     thr_txt = f"{thr:.2f}"
@@ -204,31 +198,33 @@ with tab_single:
         tag_txt = "DEFAULT (1)" if s["pred"] == 1 else "NO DEFAULT (0)"
         prediction_html = f"<div class='tag {tag_cls}'>{tag_txt}</div>"
     else:
-        prediction_html = "<div class='tag' style='background:var(--surface);border:1px solid var(--border);color:var(--text-2)'>No prediction yet</div>"
+        prediction_html = "<div class='pill'>No prediction yet</div>"
 
-    st.markdown(f"""
+    # Render the whole card in ONE HTML block (prevents empty strip)
+    card_html = f"""
     <div class="card">
       <div class="result-grid">
         <div>
-          <div class="result-title">Probability of Default</div>
-          <div class="result-value">{prob_txt}</div>
+          <div style="font-weight:600; color:var(--text-2)">Probability of Default</div>
+          <h2 style="margin:.25rem 0 0">{prob_txt}</h2>
         </div>
         <div>
-          <div class="result-title">Threshold</div>
-          <div class="result-value">{thr_txt}</div>
+          <div style="font-weight:600; color:var(--text-2)">Threshold</div>
+          <h2 style="margin:.25rem 0 0">{thr_txt}</h2>
         </div>
         <div>
-          <div class="result-title">Prediction</div>
+          <div style="font-weight:600; color:var(--text-2)">Prediction</div>
           <div style="margin-top:.35rem">{prediction_html}</div>
         </div>
       </div>
     </div>
-    """, unsafe_allow_html=True)
+    """
+    st.markdown(card_html, unsafe_allow_html=True)
 
 # ===== TAB 2: Batch CSV =====
 with tab_batch:
     st.markdown('<div class="section-title">Upload CSV</div>', unsafe_allow_html=True)
-    st.caption("CSV must contain the same feature names used during training.")
+    st.caption("CSV must contain same feature names as training data.")
 
     sample = pd.DataFrame([{
         "loanamount": 5000, "termdays": 30, "loannumber": 1, "approved_hour": 12,
@@ -249,9 +245,37 @@ with tab_batch:
         st.write(scored.head())
         st.download_button("Download results CSV", data=scored.to_csv(index=False), file_name="predictions.csv")
 
-# ------- Footer -------
+# ------- Footer (centered, 2x2 rows) -------
+# ------- Footer (centered, 2 items per line) -------
 st.markdown("""
-<hr class="theme-hr">
+<style>
+.footer{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+  background: var(--footer-bg, var(--bg)) !important;
+  border: 1px solid var(--footer-border, var(--border)) !important;
+  border-radius:12px; padding:14px 18px;
+  color: var(--footer-text, var(--text)) !important;
+  text-align:center;
+}
+.footer .footer-grid{
+  display:grid;
+  grid-template-columns: repeat(2, auto);   /* 2 items per line */
+  column-gap: 28px;
+  row-gap: 6px;
+  justify-content:center;
+  align-items:center;
+}
+.footer .item{ white-space:nowrap; }
+@media (max-width: 520px){
+  .footer .footer-grid{ grid-template-columns: 1fr; }  /* stack on small screens */
+  .footer .item{ white-space:normal; }
+}
+.footer a{ color: var(--footer-link, var(--text-2)) !important; text-decoration: none; }
+.footer a:hover{ color: var(--footer-link-hover, var(--text)) !important; text-decoration: underline; }
+hr.footer-hr{ border: none; border-top: 1px solid var(--border); margin-top:2rem; margin-bottom:0.5rem; }
+</style>
+
+<hr class="footer-hr">
 <div class="footer">
   <div class="footer-grid">
     <div class="item"><strong>Built by:</strong> Euba Morenikeji Ibilola</div>
