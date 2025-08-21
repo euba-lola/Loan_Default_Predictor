@@ -108,8 +108,10 @@ hr.theme-hr{ border:none; border-top:1px solid var(--border); margin-top:2rem; m
 # ------- Load artifacts -------
 @st.cache_resource
 def load_artifacts():
-    pipe_path = Path(r"C:\Users\USER\Downloads\Loan_Default_Predictor\artifacts\loan_default_lr_pipeline.pkl")
-    meta_path = Path(r"C:\Users\USER\Downloads\Loan_Default_Predictor\artifacts\loan_default_lr_metadata.json")
+    # Use relative paths so it works on any system
+    pipe_path = Path("artifacts/loan_default_lr_pipeline.pkl")
+    meta_path = Path("artifacts/loan_default_lr_metadata.json")
+
     pipeline = joblib.load(pipe_path)
     with open(meta_path, "r") as f:
         meta = json.load(f)
