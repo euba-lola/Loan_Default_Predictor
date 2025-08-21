@@ -1,0 +1,26 @@
+{
+  "saved_at": "2025-08-20T20:13:48",
+  "model_type": "LogisticRegression",
+  "threshold": 0.5499999999999999,
+  "numeric_features": [
+    "loannumber",
+    "loanamount",
+    "termdays",
+    "debt_to_income",
+    "estimated_income",
+    "loan_to_income_ratio",
+    "loan_to_term_ratio",
+    "approved_hour",
+    "avg_interest_amount",
+    "avg_daily_repayment_amount",
+    "avg_credit_score",
+    "age"
+  ],
+  "categorical_features": [
+    "approved_weekday",
+    "bank_account_type",
+    "bank_name_clients",
+    "employment_status_clients"
+  ],
+  "note": "Preprocessor (scaler+OHE) + SMOTE + tuned LR; trained on training split."
+}
