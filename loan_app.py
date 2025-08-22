@@ -8,33 +8,26 @@ from pathlib import Path
 # ------- MUST BE FIRST STREAMLIT CALL -------
 st.set_page_config(page_title="Loan Default Predictor", page_icon="💳", layout="centered")
 
+st.set_page_config(page_title="Loan Default Predictor", page_icon="💳", layout="centered")
+
 st.markdown("""
 <style>
+/* Remove Streamlit header/decoration band */
+[data-testid="stHeader"] { background: transparent !important; }
+[data-testid="stDecoration"] { background: transparent !important; box-shadow:none !important; }
+
 /* ===== Base palette: blue & white with red accents ===== */
 :root{
-  --bg:#f7fafd;         /* light bluish-white background */
-  --surface:#ffffff;    /* cards pure white */
-  --border:#d0d7de;     /* soft border */
-  --text:#1a237e;       /* deep navy text */
-  --text-2:#455a64;     /* muted gray-blue */
-  --muted:#90a4ae;
-  --risk:#B3261E;       /* red for default warnings */
-  --risk-2:#E64437;
-  --accent:#1565c0;     /* bright blue for headings/buttons */
-  --accent-2:#1e88e5;
+  --bg:#f7fafd; --surface:#ffffff; --border:#d0d7de;
+  --text:#1a237e; --text-2:#455a64; --muted:#90a4ae;
+  --risk:#B3261E; --risk-2:#E64437; --accent:#1565c0; --accent-2:#1e88e5;
 }
 
 .stApp{ background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,Roboto,sans-serif; }
 .block-container{ max-width:1100px; padding-top:.5rem; }
 
 /* Headings */
-.app-title{
-  font-weight:800;
-  font-size:42px;
-  margin:.5rem 0 .5rem 0;
-  padding-top:12px;   /* gives breathing space above */
-  color:var(--accent);
-}
+.app-title{ font-weight:800; font-size:42px; margin:.5rem 0 .5rem 0; padding-top:12px; color:var(--accent); }
 .app-caption{ color:var(--text-2); }
 .section-title{ font-weight:700; color:var(--accent); margin:.25rem 0 .5rem; }
 
@@ -81,17 +74,15 @@ st.markdown("""
 /* File uploader */
 [data-testid="stFileUploaderDropzone"]{ background:#fafafa !important; border:1px dashed var(--border) !important; }
 
-/* ===== Footer ===== */
+/* ===== Footer styles ===== */
 .footer{
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
   background:#e3f2fd; border:1px solid #d0d7de; border-radius:12px;
-  padding:18px; margin-top:20px;
-  text-align:center; color:#1a237e; font-size:0.95rem;
+  padding:18px; margin-top:20px; text-align:center; color:#1a237e; font-size:0.95rem;
 }
 .footer .footer-grid{
   display:grid; grid-template-columns: repeat(2, auto);
-  column-gap: 40px; row-gap: 6px;
-  justify-content:center; align-items:center;
+  column-gap: 40px; row-gap: 6px; justify-content:center; align-items:center;
 }
 .footer .item{ white-space:nowrap; font-weight:500; }
 @media (max-width: 520px){
@@ -103,19 +94,7 @@ st.markdown("""
 .brand{ font-weight:700; font-size:1rem; margin-top:10px; color:#1565c0; }
 .copy{ font-size:0.85rem; color:#455a64; margin-top:4px; }
 </style>
-
-<div class="footer">
-  <div class="footer-grid">
-    <div class="item"><strong>👩‍💻 Built by:</strong> Euba Morenikeji Ibilola</div>
-    <div class="item"><strong>📧 Email:</strong> <a href="mailto:Morenikejieuba@gmail.com">Morenikejieuba@gmail.com</a></div>
-    <div class="item"><strong>📞 Phone:</strong> <a href="tel:+393513493155">+39 351 349 3155</a></div>
-    <div class="item"><strong>💼 LinkedIn:</strong> <a href="https://www.linkedin.com/in/morenikeji-euba-92a125190/" target="_blank">morenikeji-euba-92a125190</a></div>
-  </div>
-  <div class="brand">💳 Loan Default Predictor</div>
-  <div class="copy">© 2025 • Risk Analytics • Powered by Data Science</div>
-</div>
 """, unsafe_allow_html=True)
-
 # ------- Load artifacts -------
 @st.cache_resource
 def load_artifacts():
@@ -311,15 +290,18 @@ st.markdown("""
 hr.footer-hr{ border: none; border-top: 1px solid var(--border); margin-top:2rem; margin-bottom:0.5rem; }
 </style>
 
-<hr class="footer-hr">
+FOOTER_HTML = """
 <div class="footer">
   <div class="footer-grid">
-    <div class="item"><strong>Built by:</strong> Euba Morenikeji Ibilola</div>
-    <div class="item"><strong>Email:</strong> <a href="mailto:Morenikejieuba@gmail.com">Morenikejieuba@gmail.com</a></div>
-    <div class="item"><strong>Phone:</strong> <a href="tel:+393513493155">+39 351 349 3155</a></div>
-    <div class="item"><strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/morenikeji-euba-92a125190/" target="_blank" rel="noopener noreferrer">morenikeji-euba-92a125190</a></div>
+    <div class="item"><strong>👩‍💻 Built by:</strong> Euba Morenikeji Ibilola</div>
+    <div class="item"><strong>📧 Email:</strong> <a href="mailto:Morenikejieuba@gmail.com">Morenikejieuba@gmail.com</a></div>
+    <div class="item"><strong>📞 Phone:</strong> <a href="tel:+393513493155">+39 351 349 3155</a></div>
+    <div class="item"><strong>💼 LinkedIn:</strong> <a href="https://www.linkedin.com/in/morenikeji-euba-92a125190/" target="_blank">morenikeji-euba-92a125190</a></div>
   </div>
-  <div class="brand">Loan Default Predictor</div>
-  <div class="copy">© 2025 • Risk Analytics • All rights reserved</div>
+  <div class="brand">💳 Loan Default Predictor</div>
+  <div class="copy">© 2025 • Risk Analytics • Powered by Data Science</div>
 </div>
-""", unsafe_allow_html=True)
+"""
+st.markdown(FOOTER_HTML, unsafe_allow_html=True)
+
+
