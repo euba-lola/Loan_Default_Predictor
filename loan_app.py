@@ -101,20 +101,40 @@ hr{ border: none; border-top: 1px solid var(--border); }
 # ------- Load artifacts -------
 @st.cache_resource
 def load_artifacts():
-    # ✅ Correct full paths to artifacts
-    pipe_path = Path(r"C:\\Users\\USER\\Downloads\\Loan_Default_Predictor\\artifacts\\loan_default_lr_pipeline.pkl")
-    meta_path = Path(r"C:\\Users\\USER\\Downloads\\Loan_Default_Predictor\\artifacts\\loan_default_lr_metadata.json")
+    base = Path(__file__).resolve().parent
 
-    pipeline = joblib.load(pipe_path)
-    with open(meta_path, "r") as f:
-        meta = json.load(f)
+    # Candidates in case you change folder/names later
+    candidates = [
+        (base / "artifacts" / "loan_default_lr_pipeline.pkl",
+         base / "artifacts" / "loan_default_lr_metadata.json"),
+        (base / "models" / "loan_default_lr_pipeline.pkl",
+         base / "models" / "loan_default_lr_metadata.json"),
+        (base / "loan_default_lr_pipeline.pkl",
+         base / "loan_default_lr_metadata.json"),
+    ]
 
-    return pipeline, meta
+    for pipe_path, meta_path in candidates:
+        if pipe_path.exists() and meta_path.exists():
+            pipeline = joblib.load(pipe_path)
+            with open(meta_path, "r") as f:
+                meta = json.load(f)
+            return pipeline, meta
 
+    # Helpful error with what exists on the server
+    artifacts = list((base / "artifacts").glob("*")) if (base / "artifacts").exists() else []
+    models = list((base / "models").glob("*")) if (base / "models").exists() else []
+    raise FileNotFoundError(
+        "Model or metadata not found.\n"
+        f"Tried: {candidates}\n"
+        f"Found in artifacts/: {artifacts}\n"
+        f"Found in models/: {models}"
+    )
+
+# Use the loader
 pipeline, meta = load_artifacts()
 DEFAULT_THR = float(meta.get("threshold", 0.5))
-NUM_COLS = list(map(str, meta.get("numeric_features", [])))
-CAT_COLS = list(map(str, meta.get("categorical_features", [])))
+NUM_COLS = [str(x) for x in meta.get("numeric_features", [])]
+CAT_COLS = [str(x) for x in meta.get("categorical_features", [])]
 
 # 5) Header
 st.markdown('<div class="app-title">💳 Loan Default Predictor</div>', unsafe_allow_html=True)
