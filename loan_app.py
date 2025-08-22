@@ -8,8 +8,7 @@ from pathlib import Path
 # ------- MUST BE FIRST STREAMLIT CALL -------
 st.set_page_config(page_title="Loan Default Predictor", page_icon="💳", layout="centered")
 
-st.set_page_config(page_title="Loan Default Predictor", page_icon="💳", layout="centered")
-
+# ------- GLOBAL STYLES (theme + components) -------
 st.markdown("""
 <style>
 /* Remove Streamlit header/decoration band */
@@ -54,6 +53,11 @@ st.markdown("""
 .card{ background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px 18px; }
 [data-testid="stMetricValue"]{ color:var(--accent); font-weight:800; }
 
+/* Result grid + pill */
+.result-grid{ display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:16px; align-items:center; }
+@media (max-width: 900px){ .result-grid{ grid-template-columns:1fr; } }
+.pill{ display:inline-block; padding:6px 10px; border-radius:999px; background:#eef2f7; color:#455a64; font-weight:600; }
+
 /* Tabs in blue */
 .stTabs [data-baseweb="tab"][aria-selected="true"]{
   color:var(--accent) !important; border-bottom:2px solid var(--accent) !important;
@@ -68,6 +72,7 @@ st.markdown("""
 .stButton>button:hover{ background:var(--accent-2) !important; }
 
 /* Result tags */
+.tag{ display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:10px; font-weight:700; }
 .tag.good{ background:#e8f5e9; color:#2e7d32; border:1px solid #81c784; }
 .tag.risk{ background:#ffebee; color:var(--risk); border:1px solid #ef9a9a; }
 
@@ -93,14 +98,14 @@ st.markdown("""
 .footer a:hover{ color:#1e88e5 !important; text-decoration:underline; }
 .brand{ font-weight:700; font-size:1rem; margin-top:10px; color:#1565c0; }
 .copy{ font-size:0.85rem; color:#455a64; margin-top:4px; }
+hr.footer-hr{ border:none; border-top:1px solid var(--border); margin-top:2rem; margin-bottom:.5rem; }
 </style>
 """, unsafe_allow_html=True)
+
 # ------- Load artifacts -------
 @st.cache_resource
 def load_artifacts():
     base = Path(__file__).resolve().parent
-
-    # Candidates in case you change folder/names later
     candidates = [
         (base / "artifacts" / "loan_default_lr_pipeline.pkl",
          base / "artifacts" / "loan_default_lr_metadata.json"),
@@ -109,7 +114,6 @@ def load_artifacts():
         (base / "loan_default_lr_pipeline.pkl",
          base / "loan_default_lr_metadata.json"),
     ]
-
     for pipe_path, meta_path in candidates:
         if pipe_path.exists() and meta_path.exists():
             pipeline = joblib.load(pipe_path)
@@ -117,7 +121,7 @@ def load_artifacts():
                 meta = json.load(f)
             return pipeline, meta
 
-    # Helpful error with what exists on the server
+    # Helpful debug if not found
     artifacts = list((base / "artifacts").glob("*")) if (base / "artifacts").exists() else []
     models = list((base / "models").glob("*")) if (base / "models").exists() else []
     raise FileNotFoundError(
@@ -133,10 +137,12 @@ DEFAULT_THR = float(meta.get("threshold", 0.5))
 NUM_COLS = [str(x) for x in meta.get("numeric_features", [])]
 CAT_COLS = [str(x) for x in meta.get("categorical_features", [])]
 
-# 5) Header
+# ------- Header -------
 st.markdown('<div class="app-title">💳 Loan Default Predictor</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="app-caption">Smarter credit decisions start here. This app predicts loan default risk with data-driven insights that reduce uncertainty and improve portfolio performance.</div>',
+    '<div class="app-caption">Smarter credit decisions start here. '
+    'This app predicts loan default risk with data-driven insights that reduce uncertainty '
+    'and improve portfolio performance.</div>',
     unsafe_allow_html=True
 )
 
@@ -191,20 +197,13 @@ with tab_single:
         "approved_weekday": approved_weekday, "bank_name_clients": bank_name_clients
     }])
 
-    # Persist last prediction
     if "score" not in st.session_state:
         st.session_state.score = None
 
-    # Predict
     if st.button("Predict Default"):
         res = predict_df(single_row, thr).iloc[0]
-        st.session_state.score = {
-            "prob": float(res["proba_default"]),
-            "pred": int(res["pred_default"]),
-            "thr_used": float(thr),
-        }
+        st.session_state.score = {"prob": float(res["proba_default"]), "pred": int(res["pred_default"]), "thr_used": float(thr)}
 
-    # Build result values
     s = st.session_state.score
     prob_txt = f"{s['prob']:.3f}" if s else "—"
     thr_txt = f"{thr:.2f}"
@@ -215,7 +214,6 @@ with tab_single:
     else:
         prediction_html = "<div class='pill'>No prediction yet</div>"
 
-    # Render the whole card in ONE HTML block (prevents empty strip)
     card_html = f"""
     <div class="card">
       <div class="result-grid">
@@ -239,8 +237,7 @@ with tab_single:
 # ===== TAB 2: Batch CSV =====
 with tab_batch:
     st.markdown('<div class="section-title">Upload CSV</div>', unsafe_allow_html=True)
-    st.caption("CSV must contain same feature names as training data.")
-
+    st.caption("CSV must contain the same feature names as the training data.")
     sample = pd.DataFrame([{
         "loanamount": 5000, "termdays": 30, "loannumber": 1, "approved_hour": 12,
         "avg_interest_amount": 200, "avg_daily_repayment_amount": 150, "loan_to_term_ratio": 166.7,
@@ -250,7 +247,6 @@ with tab_batch:
         "approved_weekday": "Wednesday", "bank_name_clients": "GT Bank"
     }])
     st.download_button("Download sample CSV", data=sample.to_csv(index=False), file_name="sample_input.csv")
-
     file = st.file_uploader("Upload CSV file", type=["csv"])
     if file is not None:
         df_in = pd.read_csv(file)
@@ -260,48 +256,18 @@ with tab_batch:
         st.write(scored.head())
         st.download_button("Download results CSV", data=scored.to_csv(index=False), file_name="predictions.csv")
 
-# ------- Footer (centered, 2x2 rows) -------
-# ------- Footer (centered, 2 items per line) -------
-st.markdown("""
-<style>
-.footer{
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
-  background: var(--footer-bg, var(--bg)) !important;
-  border: 1px solid var(--footer-border, var(--border)) !important;
-  border-radius:12px; padding:14px 18px;
-  color: var(--footer-text, var(--text)) !important;
-  text-align:center;
-}
-.footer .footer-grid{
-  display:grid;
-  grid-template-columns: repeat(2, auto);   /* 2 items per line */
-  column-gap: 28px;
-  row-gap: 6px;
-  justify-content:center;
-  align-items:center;
-}
-.footer .item{ white-space:nowrap; }
-@media (max-width: 520px){
-  .footer .footer-grid{ grid-template-columns: 1fr; }  /* stack on small screens */
-  .footer .item{ white-space:normal; }
-}
-.footer a{ color: var(--footer-link, var(--text-2)) !important; text-decoration: none; }
-.footer a:hover{ color: var(--footer-link-hover, var(--text)) !important; text-decoration: underline; }
-hr.footer-hr{ border: none; border-top: 1px solid var(--border); margin-top:2rem; margin-bottom:0.5rem; }
-</style>
-
+# ------- Footer (render at bottom) -------
 FOOTER_HTML = """
+<hr class="footer-hr">
 <div class="footer">
   <div class="footer-grid">
     <div class="item"><strong>👩‍💻 Built by:</strong> Euba Morenikeji Ibilola</div>
     <div class="item"><strong>📧 Email:</strong> <a href="mailto:Morenikejieuba@gmail.com">Morenikejieuba@gmail.com</a></div>
     <div class="item"><strong>📞 Phone:</strong> <a href="tel:+393513493155">+39 351 349 3155</a></div>
-    <div class="item"><strong>💼 LinkedIn:</strong> <a href="https://www.linkedin.com/in/morenikeji-euba-92a125190/" target="_blank">morenikeji-euba-92a125190</a></div>
+    <div class="item"><strong>💼 LinkedIn:</strong> <a href="https://www.linkedin.com/in/morenikeji-euba-92a125190/" target="_blank" rel="noopener noreferrer">morenikeji-euba-92a125190</a></div>
   </div>
   <div class="brand">💳 Loan Default Predictor</div>
   <div class="copy">© 2025 • Risk Analytics • Powered by Data Science</div>
 </div>
 """
 st.markdown(FOOTER_HTML, unsafe_allow_html=True)
-
-
