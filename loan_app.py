@@ -81,11 +81,40 @@ st.markdown("""
 /* File uploader */
 [data-testid="stFileUploaderDropzone"]{ background:#fafafa !important; border:1px dashed var(--border) !important; }
 
-/* Footer */
-.footer{ background:#e3f2fd; border:1px solid var(--border); border-radius:12px; padding:14px; text-align:center; color:var(--text); }
-.footer a{ color:var(--accent) !important; text-decoration:none; }
-.footer a:hover{ text-decoration:underline; }
+st.markdown("""
+<style>
+.footer{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+  background:#e3f2fd; border:1px solid #d0d7de; border-radius:12px;
+  padding:18px; margin-top:20px;
+  text-align:center; color:#1a237e; font-size:0.95rem;
+}
+.footer .footer-grid{
+  display:grid; grid-template-columns: repeat(2, auto);
+  column-gap: 40px; row-gap: 6px;
+  justify-content:center; align-items:center;
+}
+.footer .item{ white-space:nowrap; font-weight:500; }
+@media (max-width: 520px){
+  .footer .footer-grid{ grid-template-columns: 1fr; }
+  .footer .item{ white-space:normal; text-align:center; }
+}
+.footer a{ color:#1565c0 !important; text-decoration:none; font-weight:600; }
+.footer a:hover{ color:#1e88e5 !important; text-decoration:underline; }
+.brand{ font-weight:700; font-size:1rem; margin-top:10px; color:#1565c0; }
+.copy{ font-size:0.85rem; color:#455a64; margin-top:4px; }
 </style>
+
+<div class="footer">
+  <div class="footer-grid">
+    <div class="item"><strong>👩‍💻 Built by:</strong> Euba Morenikeji Ibilola</div>
+    <div class="item"><strong>📧 Email:</strong> <a href="mailto:Morenikejieuba@gmail.com">Morenikejieuba@gmail.com</a></div>
+    <div class="item"><strong>📞 Phone:</strong> <a href="tel:+393513493155">+39 351 349 3155</a></div>
+    <div class="item"><strong>💼 LinkedIn:</strong> <a href="https://www.linkedin.com/in/morenikeji-euba-92a125190/" target="_blank">morenikeji-euba-92a125190</a></div>
+  </div>
+  <div class="brand">💳 Loan Default Predictor</div>
+  <div class="copy">© 2025 • Risk Analytics • Powered by Data Science</div>
+</div>
 """, unsafe_allow_html=True)
 
 # ------- Load artifacts -------
