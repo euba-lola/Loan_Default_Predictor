@@ -8,77 +8,115 @@ from pathlib import Path
 # ------- MUST BE FIRST STREAMLIT CALL -------
 st.markdown("""
 <style>
-/* ======= Base ======= */
+/* ===== Global reset: make EVERYTHING dark ===== */
+html, body, [data-testid="stAppViewContainer"], .stApp { background:#000 !important; }
+main, .main, .block-container { background:#000 !important; }
+
+/* Kill the white header bar & decoration */
+[data-testid="stHeader"] { background: transparent !important; }
+header { background: transparent !important; }
+[data-testid="stDecoration"] { background: transparent !important; box-shadow:none !important; }
+
+/* ===== Design tokens ===== */
 :root{
-  --bg:#000000;         /* pure black background */
-  --surface:#111111;    /* slightly lighter for cards/sections */
-  --border:#2A2C2F;
-  --text:#FFFFFF;       /* white text */
-  --text-2:#C9CDD2;
-  --muted:#8A8F98;
-  --good:#1F7A1F;
-  --risk:#B3261E;       /* red accent */
-  --btn:#2F3136;
-  --btn-h:#3A3D43;
+  --bg:#000000;        /* app background */
+  --surface:#0c0c0c;   /* cards/sections */
+  --surface-2:#111;    /* alt surface */
+  --border:#2A2C2F;    /* subtle borders */
+  --text:#FFFFFF;      /* primary text */
+  --text-2:#BFC5CC;    /* secondary text */
+  --muted:#8A8F98;     /* tertiary */
+  --risk:#B3261E;      /* red accent */
+  --risk-2:#E64437;    /* hover red */
 }
 
-.stApp{ background:var(--bg); color:var(--text); font-family: 'Segoe UI',system-ui, -apple-system, Roboto, Arial, sans-serif; }
-.block-container{ max-width:1100px; padding-top:0.75rem; }
+/* App container */
+.stApp{ color:var(--text); font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif; }
+.block-container{ max-width:1100px; padding-top:.5rem; }
 
-/* ======= Columns highlight (red border) ======= */
-[data-testid="stHorizontalBlock"] > div{
-  border:2px solid var(--risk);
-  border-radius:12px;
-  padding:12px;
-  margin-bottom:12px;
-}
-
-/* ======= Headings ======= */
-.app-title{
-  font-weight:800; font-size:40px; margin:.75rem 0 .25rem 0;
-  color:var(--text);
-}
+/* ===== Headings ===== */
+.app-title{ font-weight:800; font-size:40px; margin:.6rem 0 .2rem 0; color:var(--text); }
 .app-caption{ color:var(--text-2); }
 .section-title{ font-weight:700; color:var(--text-2); margin:.25rem 0 .5rem; }
 
-/* ======= Sidebar ======= */
-[data-testid="stSidebar"]{ background:var(--surface); color:var(--text); border-right:1px solid var(--border); }
-[data-testid="stSidebar"] .stMarkdown, [data-testid="stSidebar"] label, [data-testid="stSidebar"] span{ color:var(--text-2) !important; }
-[data-testid="stSidebar"] .stSlider > div{ color:var(--text); }
-
-/* ======= Inputs ======= */
-.stNumberInput input, .stSelectbox div[data-baseweb="select"]>div{
-  background:var(--bg); color:var(--text); border:1px solid var(--border); border-radius:10px;
+/* ===== Sidebar ===== */
+[data-testid="stSidebar"]{
+  background:linear-gradient(180deg, #0c0c0c 0%, #000 80%) !important;
+  color:var(--text) !important; border-right:1px solid var(--border);
 }
-.stNumberInput label, .stSelectbox label{ color:var(--text-2); font-weight:600; }
-
-/* ======= Buttons ======= */
-.stButton>button{
-  background:var(--btn); color:var(--text);
-  border:1px solid var(--border); border-radius:10px; font-weight:700; padding:.6rem 1rem;
+[data-testid="stSidebar"] .stMarkdown, [data-testid="stSidebar"] label, [data-testid="stSidebar"] span{
+  color:var(--text-2) !important;
 }
-.stButton>button:hover{ background:var(--btn-h); }
 
-/* ======= Cards / Metrics ======= */
+/* Slider accent in red */
+.stSlider [role="slider"]{ background:var(--risk) !important; }
+.stSlider .stSliderTrack{ background: #2b2b2b !important; }
+
+/* ===== Inputs ===== */
+.stNumberInput input,
+.stSelectbox div[data-baseweb="select"]>div{
+  background:#0b0b0b !important;
+  color:var(--text) !important;
+  border:1px solid var(--border) !important;
+  border-radius:12px !important;
+}
+.stNumberInput label, .stSelectbox label{ color:var(--text-2) !important; font-weight:600; }
+
+/* ===== Column highlight (red outline) ===== */
+[data-testid="stHorizontalBlock"] > div{
+  border:2px solid var(--risk);
+  border-radius:14px;
+  padding:14px;
+  background: var(--surface);
+  margin-bottom:14px;
+}
+
+/* ===== Cards / metrics ===== */
 .card{ background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px 18px; }
 [data-testid="stMetric"]{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
 [data-testid="stMetricValue"]{ color:var(--text); font-weight:800; }
 
-/* ======= Result tags ======= */
-.tag.good{ background:rgba(31,122,31,.12); color:#C6F6C6; border:1px solid rgba(31,122,31,.35); }
-.tag.risk{ background:rgba(179,38,30,.25); color:#FF7A7A; border:1px solid rgba(179,38,30,.8); }
+/* ===== Tabs in red theme ===== */
+.stTabs [data-baseweb="tab-list"]{ border-bottom:1px solid var(--border); }
+.stTabs [data-baseweb="tab"]{
+  color:var(--text-2) !important; font-weight:700; padding-bottom:8px;
+}
+.stTabs [data-baseweb="tab"][aria-selected="true"]{
+  color:var(--text) !important;
+  border-bottom:2px solid var(--risk) !important;
+}
 
-/* ======= Footer ======= */
+/* ===== Buttons (Predict) in red) ===== */
+.stButton>button{
+  background:var(--risk) !important; color:#fff !important;
+  border-radius:10px !important; border:1px solid var(--risk) !important;
+  font-weight:700 !important; padding:.6rem 1rem !important;
+}
+.stButton>button:hover{ background:var(--risk-2) !important; border-color:var(--risk-2) !important; }
+
+/* ===== Result tags ===== */
+.tag{ display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:10px; font-weight:700; }
+.tag.good{ background:rgba(31,122,31,.15); color:#C6F6C6; border:1px solid rgba(31,122,31,.4); }
+.tag.risk{ background:rgba(179,38,30,.18); color:#FFACA5; border:1px solid rgba(179,38,30,.75); }
+
+/* ===== File uploader dark ===== */
+[data-testid="stFileUploaderDropzone"]{
+  background:#0b0b0b !important; border:1px dashed var(--border) !important; color:var(--text-2) !important;
+}
+
+/* Tables & code */
+.stCode, .stDataFrame{ border:1px solid var(--border); border-radius:10px; background:#0b0b0b; }
+
+/* Footer */
 .footer{
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
-  background: var(--bg) !important;
-  border: 1px solid var(--border) !important;
-  border-radius:12px; padding:14px 18px;
-  color: var(--text) !important;
-  text-align:center;
+  background:#000 !important; border:1px solid var(--border) !important; border-radius:12px;
+  padding:14px 18px; color:var(--text) !important; text-align:center;
 }
 .footer a{ color: var(--risk) !important; text-decoration: none; }
-.footer a:hover{ text-decoration: underline; }
+.footer a:hover{ color: var(--risk-2) !important; text-decoration: underline; }
+
+/* Themed hr */
 hr{ border: none; border-top: 1px solid var(--border); }
 </style>
 """, unsafe_allow_html=True)
