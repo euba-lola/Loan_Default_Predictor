@@ -93,9 +93,11 @@ New variables were created to improve predictive power:
 
 ---
 
-##  Deployment  
+## Deployment  
 
 The final model was deployed using **Streamlit**:  
+
+**Live App:** [https://euba-loan-default-predictor.streamlit.app/](https://euba-loan-default-predictor.streamlit.app/)
 
 ### Features of the App  
 - User inputs borrower details.  
