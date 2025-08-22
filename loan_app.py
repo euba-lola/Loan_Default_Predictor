@@ -26,9 +26,17 @@ st.markdown("""
 .block-container{ max-width:1100px; padding-top:.5rem; }
 
 /* Headings */
-.app-title{ font-weight:800; font-size:42px; margin:.5rem 0; color:var(--accent); }
-.app-caption{ color:var(--text-2); }
-.section-title{ font-weight:700; color:var(--accent); margin:.25rem 0 .5rem; }
+st.markdown("""
+<style>
+.app-title {
+  font-weight:800;
+  font-size:42px;
+  margin:.5rem 0 .5rem 0;
+  padding-top:12px;    /* 🔥 Fix: gives breathing space above */
+  color:var(--accent);
+}
+</style>
+""", unsafe_allow_html=True)
 
 /* Sidebar */
 [data-testid="stSidebar"]{ background:#e3f2fd; color:var(--text); border-right:1px solid var(--border); }
