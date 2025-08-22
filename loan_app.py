@@ -81,8 +81,7 @@ st.markdown("""
 /* File uploader */
 [data-testid="stFileUploaderDropzone"]{ background:#fafafa !important; border:1px dashed var(--border) !important; }
 
-st.markdown("""
-<style>
+/* ===== Footer ===== */
 .footer{
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
   background:#e3f2fd; border:1px solid #d0d7de; border-radius:12px;
