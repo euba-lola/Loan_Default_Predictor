@@ -8,116 +8,75 @@ from pathlib import Path
 # ------- MUST BE FIRST STREAMLIT CALL -------
 st.markdown("""
 <style>
-/* ===== Global reset: make EVERYTHING dark ===== */
-html, body, [data-testid="stAppViewContainer"], .stApp { background:#000 !important; }
-main, .main, .block-container { background:#000 !important; }
-
-/* Kill the white header bar & decoration */
-[data-testid="stHeader"] { background: transparent !important; }
-header { background: transparent !important; }
-[data-testid="stDecoration"] { background: transparent !important; box-shadow:none !important; }
-
-/* ===== Design tokens ===== */
+/* ===== Base palette: blue & white with red accents ===== */
 :root{
-  --bg:#000000;        /* app background */
-  --surface:#0c0c0c;   /* cards/sections */
-  --surface-2:#111;    /* alt surface */
-  --border:#2A2C2F;    /* subtle borders */
-  --text:#FFFFFF;      /* primary text */
-  --text-2:#BFC5CC;    /* secondary text */
-  --muted:#8A8F98;     /* tertiary */
-  --risk:#B3261E;      /* red accent */
-  --risk-2:#E64437;    /* hover red */
+  --bg:#f7fafd;         /* light bluish-white background */
+  --surface:#ffffff;    /* cards pure white */
+  --border:#d0d7de;     /* soft border */
+  --text:#1a237e;       /* deep navy text */
+  --text-2:#455a64;     /* muted gray-blue */
+  --muted:#90a4ae;
+  --risk:#B3261E;       /* red for default warnings */
+  --risk-2:#E64437;
+  --accent:#1565c0;     /* bright blue for headings/buttons */
+  --accent-2:#1e88e5;
 }
 
-/* App container */
-.stApp{ color:var(--text); font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif; }
+.stApp{ background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,Roboto,sans-serif; }
 .block-container{ max-width:1100px; padding-top:.5rem; }
 
-/* ===== Headings ===== */
-.app-title{ font-weight:800; font-size:40px; margin:.6rem 0 .2rem 0; color:var(--text); }
+/* Headings */
+.app-title{ font-weight:800; font-size:42px; margin:.5rem 0; color:var(--accent); }
 .app-caption{ color:var(--text-2); }
-.section-title{ font-weight:700; color:var(--text-2); margin:.25rem 0 .5rem; }
+.section-title{ font-weight:700; color:var(--accent); margin:.25rem 0 .5rem; }
 
-/* ===== Sidebar ===== */
-[data-testid="stSidebar"]{
-  background:linear-gradient(180deg, #0c0c0c 0%, #000 80%) !important;
-  color:var(--text) !important; border-right:1px solid var(--border);
-}
-[data-testid="stSidebar"] .stMarkdown, [data-testid="stSidebar"] label, [data-testid="stSidebar"] span{
-  color:var(--text-2) !important;
-}
+/* Sidebar */
+[data-testid="stSidebar"]{ background:#e3f2fd; color:var(--text); border-right:1px solid var(--border); }
+[data-testid="stSidebar"] .stMarkdown, [data-testid="stSidebar"] label{ color:var(--text-2) !important; }
 
-/* Slider accent in red */
+/* Slider in red */
 .stSlider [role="slider"]{ background:var(--risk) !important; }
-.stSlider .stSliderTrack{ background: #2b2b2b !important; }
+.stSlider .stSliderTrack{ background:#cfd8dc !important; }
 
-/* ===== Inputs ===== */
-.stNumberInput input,
-.stSelectbox div[data-baseweb="select"]>div{
-  background:#0b0b0b !important;
-  color:var(--text) !important;
-  border:1px solid var(--border) !important;
-  border-radius:12px !important;
+/* Inputs */
+.stNumberInput input, .stSelectbox div[data-baseweb="select"]>div{
+  background:#fafafa; color:var(--text); border:1px solid var(--border); border-radius:10px;
 }
-.stNumberInput label, .stSelectbox label{ color:var(--text-2) !important; font-weight:600; }
+.stNumberInput label, .stSelectbox label{ color:var(--text-2); font-weight:600; }
 
-/* ===== Column highlight (red outline) ===== */
+/* Columns highlight */
 [data-testid="stHorizontalBlock"] > div{
-  border:2px solid var(--risk);
-  border-radius:14px;
-  padding:14px;
-  background: var(--surface);
-  margin-bottom:14px;
+  border:2px solid var(--accent); border-radius:14px; padding:14px; background:var(--surface); margin-bottom:14px;
 }
 
-/* ===== Cards / metrics ===== */
+/* Cards / metrics */
 .card{ background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px 18px; }
-[data-testid="stMetric"]{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
-[data-testid="stMetricValue"]{ color:var(--text); font-weight:800; }
+[data-testid="stMetricValue"]{ color:var(--accent); font-weight:800; }
 
-/* ===== Tabs in red theme ===== */
-.stTabs [data-baseweb="tab-list"]{ border-bottom:1px solid var(--border); }
-.stTabs [data-baseweb="tab"]{
-  color:var(--text-2) !important; font-weight:700; padding-bottom:8px;
-}
+/* Tabs in blue */
 .stTabs [data-baseweb="tab"][aria-selected="true"]{
-  color:var(--text) !important;
-  border-bottom:2px solid var(--risk) !important;
+  color:var(--accent) !important; border-bottom:2px solid var(--accent) !important;
 }
+.stTabs [data-baseweb="tab"]{ color:var(--text-2) !important; font-weight:600; }
 
-/* ===== Buttons (Predict) in red) ===== */
+/* Predict button in blue */
 .stButton>button{
-  background:var(--risk) !important; color:#fff !important;
-  border-radius:10px !important; border:1px solid var(--risk) !important;
-  font-weight:700 !important; padding:.6rem 1rem !important;
+  background:var(--accent) !important; color:#fff !important;
+  border-radius:10px; font-weight:700; padding:.6rem 1rem;
 }
-.stButton>button:hover{ background:var(--risk-2) !important; border-color:var(--risk-2) !important; }
+.stButton>button:hover{ background:var(--accent-2) !important; }
 
-/* ===== Result tags ===== */
-.tag{ display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:10px; font-weight:700; }
-.tag.good{ background:rgba(31,122,31,.15); color:#C6F6C6; border:1px solid rgba(31,122,31,.4); }
-.tag.risk{ background:rgba(179,38,30,.18); color:#FFACA5; border:1px solid rgba(179,38,30,.75); }
+/* Result tags */
+.tag.good{ background:#e8f5e9; color:#2e7d32; border:1px solid #81c784; }
+.tag.risk{ background:#ffebee; color:var(--risk); border:1px solid #ef9a9a; }
 
-/* ===== File uploader dark ===== */
-[data-testid="stFileUploaderDropzone"]{
-  background:#0b0b0b !important; border:1px dashed var(--border) !important; color:var(--text-2) !important;
-}
-
-/* Tables & code */
-.stCode, .stDataFrame{ border:1px solid var(--border); border-radius:10px; background:#0b0b0b; }
+/* File uploader */
+[data-testid="stFileUploaderDropzone"]{ background:#fafafa !important; border:1px dashed var(--border) !important; }
 
 /* Footer */
-.footer{
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
-  background:#000 !important; border:1px solid var(--border) !important; border-radius:12px;
-  padding:14px 18px; color:var(--text) !important; text-align:center;
-}
-.footer a{ color: var(--risk) !important; text-decoration: none; }
-.footer a:hover{ color: var(--risk-2) !important; text-decoration: underline; }
-
-/* Themed hr */
-hr{ border: none; border-top: 1px solid var(--border); }
+.footer{ background:#e3f2fd; border:1px solid var(--border); border-radius:12px; padding:14px; text-align:center; color:var(--text); }
+.footer a{ color:var(--accent) !important; text-decoration:none; }
+.footer a:hover{ text-decoration:underline; }
 </style>
 """, unsafe_allow_html=True)
 
