@@ -129,9 +129,7 @@ CAT_COLS = [str(x) for x in meta.get("categorical_features", [])]
 # 5) Header
 st.markdown('<div class="app-title">💳 Loan Default Predictor</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="app-caption">Predicting loan default risk using behavioral, demographic, and financial features. '
-    'This app deploys the production-ready pipeline (preprocessing + SMOTE-balanced Logistic Regression) '
-    'to support data-driven credit decisions and reduce portfolio losses.</div>',
+    '<div class="app-caption">Smarter credit decisions start here. This app predicts loan default risk with data-driven insights that reduce uncertainty and improve portfolio performance.</div>',
     unsafe_allow_html=True
 )
 
