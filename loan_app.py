@@ -6,25 +6,32 @@ import joblib, json
 from pathlib import Path
 
 # ------- MUST BE FIRST STREAMLIT CALL -------
-st.set_page_config(page_title="Loan Default Predictor", page_icon="💳", layout="centered")
-
 st.markdown("""
 <style>
 /* ======= Base ======= */
 :root{
-  --bg:#0B0B0C; --surface:#151618; --border:#2A2C2F;
-  --text:#F2F4F7; --text-2:#C9CDD2; --muted:#8A8F98;
-  --good:#1F7A1F; --risk:#B3261E; --btn:#2F3136; --btn-h:#3A3D43;
-
-  /* Footer custom vars (tweak easily) */
-  --footer-bg: var(--bg);
-  --footer-text: var(--text);
-  --footer-border: var(--border);
-  --footer-link: var(--text-2);
-  --footer-link-hover: var(--text);
+  --bg:#000000;         /* pure black background */
+  --surface:#111111;    /* slightly lighter for cards/sections */
+  --border:#2A2C2F;
+  --text:#FFFFFF;       /* white text */
+  --text-2:#C9CDD2;
+  --muted:#8A8F98;
+  --good:#1F7A1F;
+  --risk:#B3261E;       /* red accent */
+  --btn:#2F3136;
+  --btn-h:#3A3D43;
 }
+
 .stApp{ background:var(--bg); color:var(--text); font-family: 'Segoe UI',system-ui, -apple-system, Roboto, Arial, sans-serif; }
 .block-container{ max-width:1100px; padding-top:0.75rem; }
+
+/* ======= Columns highlight (red border) ======= */
+[data-testid="stHorizontalBlock"] > div{
+  border:2px solid var(--risk);
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:12px;
+}
 
 /* ======= Headings ======= */
 .app-title{
@@ -57,43 +64,21 @@ st.markdown("""
 [data-testid="stMetric"]{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
 [data-testid="stMetricValue"]{ color:var(--text); font-weight:800; }
 
-/* ======= Pills ======= */
-.pill{ display:inline-block; padding:4px 10px; font-size:12px; border-radius:999px; border:1px solid var(--border); color:var(--text-2); background:var(--surface); }
-
 /* ======= Result tags ======= */
-.tag{ display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:10px; font-weight:700; }
 .tag.good{ background:rgba(31,122,31,.12); color:#C6F6C6; border:1px solid rgba(31,122,31,.35); }
-.tag.risk{ background:rgba(179,38,30,.12); color:#F7C4C1; border:1px solid rgba(179,38,30,.35); }
+.tag.risk{ background:rgba(179,38,30,.25); color:#FF7A7A; border:1px solid rgba(179,38,30,.8); }
 
-/* ======= Result grid ======= */
-.result-grid{
-  display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:16px; align-items:center;
-}
-@media (max-width: 900px){
-  .result-grid{ grid-template-columns:1fr; }
-}
-
-/* Tables & code */
-.stCode, .stDataFrame{ border:1px solid var(--border); border-radius:10px; }
-
-/* ======= Footer theme (centered) ======= */
+/* ======= Footer ======= */
 .footer{
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
-  background: var(--footer-bg) !important;
-  border: 1px solid var(--footer-border) !important;
+  background: var(--bg) !important;
+  border: 1px solid var(--border) !important;
   border-radius:12px; padding:14px 18px;
-  color: var(--footer-text) !important;
+  color: var(--text) !important;
   text-align:center;
 }
-.footer .identity{ font-size:0.95rem; line-height:1.6; }
-.footer .brand{ font-size:0.95rem; font-weight:700; }
-.footer .copy{ font-size:0.9rem; color: var(--muted); }
-
-/* Links in footer use theme colors instead of blue */
-.footer a{ color: var(--footer-link) !important; text-decoration: none; }
-.footer a:hover{ color: var(--footer-link-hover) !important; text-decoration: underline; }
-
-/* Themed hr */
+.footer a{ color: var(--risk) !important; text-decoration: none; }
+.footer a:hover{ text-decoration: underline; }
 hr{ border: none; border-top: 1px solid var(--border); }
 </style>
 """, unsafe_allow_html=True)
